@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo - {{ marca }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        /* Estilos adicionales integrados para el zoom y control de cantidad */
+        .producto-card img {
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .producto-card img:hover {
+            opacity: 0.9;
+        }
+        .cantidad-control {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 12px;
+            background: #111;
+            padding: 6px 12px;
+            border-radius: 8px;
+        }
+        .btn-qty {
+            background: #00f2fe;
+            color: #000;
+            border: none;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .btn-qty:active {
+            transform: scale(0.9);
+        }
+        .qty-input {
+            width: 40px;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-weight: bold;
+            font-size: 15px;
+        }
+        .btn-comprar {
+            display: block;
+            width: 100%;
+            margin-top: 10px;
+            padding: 8px;
+            background: #2ed573;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-weight: bold;
+            cursor: pointer;
+            text-align: center;
+            text-decoration: none;
+        }
+        .btn-comprar:hover {
+            background: #26af5f;
+        }
+
+        /* Modal para ver la foto en grande */
+        #modal-zoom {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            justify-content: center;
+            align-items: center;
+        }
+        #modal-zoom img {
+            max-width: 85%;
+            max-height: 85%;
+            border-radius: 10px;
+            box-shadow: 0 0 25px rgba(0,242,254,0.5);
+        }
+        #modal-zoom span {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body class="catalog-body">
+    <header class="main-header">
+        <div class="header-content">
+            <h1>CALZADO SURTIDO - {{ marca }}</h1>
+            <a href="{{ url_for('catalogo') }}" class="btn-salir">Volver al Menú</a>
+        </div>
+    </header>
+
+    <main class="productos-container">
+        <div class="grid-productos">
+            {% for producto in productos %}
+            <div class="producto-card">
+                <!-- Imagen con evento para abrir en grande -->
+                <img src="{{ url_for('static', filename='img/' ~ marca ~ '/' ~ producto.img) }}" alt="Tenis {{ marca }}" onclick="abrirModal(this.src)">
+                
+                <div class="producto-info">
+                    <h3>{{ marca | capitalize }}</h3>
+                    <p>ID: {{ producto.id }}</p>
+
+                    <!-- LÓGICA DE PRECIOS Y TALLAS SEGÚN ROL -->
+                    {% if es_mayorista %}
+                        <p style="color: #00f2fe; font-weight: bold; font-size: 16px;">{{ producto.precio }}</p>
+                        
+                        <!-- Selector de tallas mexicanas con medios puntos -->
+                        <div class="tallas-container" style="margin-top: 10px; text-align: center;">
+                            <label style="color: #fff; font-size: 13px; display: block; margin-bottom: 5px;">Talla (MX):</label>
+                            <select id="talla-{{ producto.id }}" class="select-talla" style="background: #111418; color: #fff; border: 1px solid #00f2fe; padding: 6px; border-radius: 6px; font-size: 13px; width: 80%;">
+                                <option value="24">24 MX</option>
+                                <option value="24.5">24.5 MX</option>
+                                <option value="25">25 MX</option>
+                                <option value="25.5">25.5 MX</option>
+                                <option value="26" selected>26 MX</option>
+                                <option value="26.5">26.5 MX</option>
+                                <option value="27">27 MX</option>
+                                <option value="27.5">27.5 MX</option>
+                                <option value="28">28 MX</option>
+                                <option value="28.5">28.5 MX</option>
+                                <option value="29">29 MX</option>
+                            </select>
+                        </div>
+
+                        <!-- Botones de + y - para la cantidad -->
+                        <div class="cantidad-control">
+                            <button class="btn-qty" onclick="cambiarQty('{{ producto.id }}', -1)">-</button>
+                            <input type="text" id="qty-{{ producto.id }}" class="qty-input" value="0" readonly>
+                            <button class="btn-qty" onclick="cambiarQty('{{ producto.id }}', 1)">+</button>
+                        </div>
+
+                        <!-- Botón para enviar pedido por WhatsApp con la cantidad y talla seleccionada -->
+                        <a href="javascript:void(0);" class="btn-comprar" onclick="enviarPedido('{{ marca }}', '{{ producto.id }}')">
+                            🛒 Pedir por WhatsApp
+                        </a>
+                    {% else %}
+                        <!-- Si es observador, ve la foto pero no los precios ni botones de compra -->
+                        <p style="color: #aaa; font-style: italic; font-size: 14px; margin-top: 10px;">🔒 Precios exclusivos para mayoristas.</p>
+                        <a href="{{ url_for('login') }}" style="color: #00f2fe; font-size: 13px; display: block; margin-top: 5px; font-weight: bold; text-decoration: none;">Iniciar Sesión (Mayoristas)</a>
+                    {% endif %}
+
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </main>
+
+    <!-- Modal para ver la imagen en grande -->
+    <div id="modal-zoom" onclick="cerrarModal()">
+        <span onclick="cerrarModal()">&times;</span>
+        <img id="img-ampliada" src="">
+    </div>
+
+    <!-- Botón flotante general de WhatsApp -->
+    <a href="https://wa.me/528991836064?text=Hola,%20vengo%20del%20catálogo%20y%20quiero%20más%20información" class="whatsapp-float" target="_blank">
+        💬 Contactar por WhatsApp
+    </a>
+
+    <!-- Script de control interactivo -->
+    <script>
+        function cambiarQty(id, cambio) {
+            let input = document.getElementById('qty-' + id);
+            let valorActual = parseInt(input.value);
+            let nuevoValor = valorActual + cambio;
+            if (nuevoValor >= 1) {
+                input.value = nuevoValor;
+            }
+        }
+
+        function abrirModal(src) {
+            document.getElementById('img-ampliada').src = src;
+            document.getElementById('modal-zoom').style.display = 'flex';
+        }
+
+        function cerrarModal() {
+            document.getElementById('modal-zoom').style.display = 'none';
+        }
+
+        function enviarPedido(marca, id) {
+            let cantidad = document.getElementById('qty-' + id).value;
+            let selectTalla = document.getElementById('talla-' + id);
+            let talla = selectTalla ? selectTalla.value : "No especificada";
+            
+            let mensaje = `Hola, soy mayorista y quiero hacer un pedido de ${cantidad} par(es) de tenis marca ${marca} (ID: ${id}), Talla: ${talla} MX.`;
+            let url = `https://wa.me/528991836064?text=` + encodeURIComponent(mensaje);
+            window.open(url, '_blank');
+        }
+    </script>
+</body>
+</html>
