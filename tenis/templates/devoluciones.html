@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Política de Devoluciones - Calzado Surtido</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="catalog-body">
+    <header class="main-header">
+        <div class="header-content">
+            <a href="{{ url_for('catalogo') }}">
+                <img src="{{ url_for('static', filename='img/Logo.png') }}" alt="Logo" class="logo-img">
+            </a>
+            <a href="{{ url_for('catalogo') }}" class="btn-salir">Volver al Catálogo</a>
+        </div>
+    </header>
+
+    <main style="max-width: 800px; margin: 40px auto; padding: 0 20px; color: #dcdde1; line-height: 1.6;">
+        <h1 style="color: #fff; border-bottom: 2px solid #00f2fe; padding-bottom: 10px;">Política de Devoluciones</h1>
+        <p>En <strong>Calzado Surtido</strong> queremos que estés 100% satisfecho con tu compra. Si necesitas realizar un cambio de talla o modelo, aplican las siguientes condiciones:</p>
+        
+        <h3 style="color: #00f2fe; margin-top: 20px;">1. Plazo de Garantía</h3>
+        <p>Cuentas con un plazo máximo de <strong>7 días naturales</strong> a partir de la fecha de entrega de tu pedido para solicitar un cambio o devolución.</p>
+
+        <h3 style="color: #00f2fe; margin-top: 20px;">2. Condiciones del Producto</h3>
+        <p>El calzado debe encontrarse en perfecto estado, sin señales de uso en exteriores, conservando su empaque original (caja de la marca) y etiquetas intactas.</p>
+
+        <h3 style="color: #00f2fe; margin-top: 20px;">3. Proceso de Solicitud</h3>
+        <p>Para iniciar una devolución, comunícate directamente con nuestro equipo a través de nuestro botón de WhatsApp oficial proporcionando tu número de pedido y motivo del cambio.</p>
+    </main>
+</body>
+</html>
